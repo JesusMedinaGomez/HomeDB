@@ -27,19 +27,28 @@
     </div>
     {% endfor %}
 
-    <!-- Botones para añadir lugar o tipo -->
-    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newPlaceModal">
-        + Nuevo Lugar
-    </button>
-    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#newTypeModal">
-        + Nuevo Tipo
-    </button>
+    <!-- Botones para añadir lugar, tipo, habitación o cajón -->
+    <div class="mb-3">
+        <button type="button" class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newPlaceModal">
+            + Nuevo Lugar
+        </button>
+        <button type="button" class="btn btn-sm btn-warning me-2" data-bs-toggle="modal" data-bs-target="#newTypeModal">
+            + Nuevo Tipo
+        </button>
+        <button type="button" class="btn btn-sm btn-info me-2" data-bs-toggle="modal" data-bs-target="#newRoomModal">
+            + Nueva Habitación
+        </button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#newBoxModal">
+            + Nuevo Cajón
+        </button>
+    </div>
 
-    <br><br>
     <button type="submit" class="btn btn-success">Actualizar Objeto</button>
 </form>
 
-<!-- Modal para crear Lugar -->
+<!-- ---------------- MODALES ---------------- -->
+
+<!-- Modal Lugar -->
 <div class="modal fade" id="newPlaceModal" tabindex="-1" aria-labelledby="newPlaceLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -49,8 +58,15 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <input type="text" id="place-name" class="form-control" placeholder="Nombre del lugar">
-          <textarea id="place-desc" class="form-control mt-2" placeholder="Descripción"></textarea>
+          <input type="text" id="place-name" class="form-control mb-2" placeholder="Nombre del lugar">
+          <textarea id="place-desc" class="form-control mb-2" placeholder="Descripción"></textarea>
+          <select id="place-room" class="form-select mb-2">
+            <option value="">Selecciona una habitación</option>
+            {% for room in user_rooms %}
+              <option value="{{ room.id }}">{{ room.name }}</option>
+            {% endfor %}
+          </select>
+          <div id="place-error" class="text-danger mt-1" style="display:none;"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -61,7 +77,7 @@
   </div>
 </div>
 
-<!-- Modal para crear Tipo -->
+<!-- Modal Tipo -->
 <div class="modal fade" id="newTypeModal" tabindex="-1" aria-labelledby="newTypeLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -82,19 +98,70 @@
   </div>
 </div>
 
+<!-- Modal Habitación -->
+<div class="modal fade" id="newRoomModal" tabindex="-1" aria-labelledby="newRoomLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="new-room-form">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newRoomLabel">Nueva Habitación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="room-name" class="form-control" placeholder="Nombre de la habitación">
+          <div id="room-error" class="text-danger mt-1" style="display:none;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-info" id="saveRoomBtn">Guardar Habitación</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cajón -->
+<div class="modal fade" id="newBoxModal" tabindex="-1" aria-labelledby="newBoxLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="new-box-form">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newBoxLabel">Nuevo Cajón</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <select id="box-place" class="form-select mb-2">
+              <option value="">Selecciona un lugar</option>
+              {% for place in user_places %}
+                  <option value="{{ place.id }}">{{ place.name }}</option>
+              {% endfor %}
+          </select>
+          <input type="text" id="box-name" class="form-control" placeholder="Nombre del cajón">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-secondary" id="saveBoxBtn">Guardar Cajón</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
+// ---------- AJAX LUGAR ----------
 document.getElementById('savePlaceBtn').addEventListener('click', function() {
-    const name = document.getElementById('place-name').value;
-    const desc = document.getElementById('place-desc').value;
-    if(!name) return alert('El nombre es obligatorio');
+    const name = document.getElementById('place-name').value.trim();
+    const desc = document.getElementById('place-desc').value.trim();
+    const roomId = document.getElementById('place-room').value;
+    const errorDiv = document.getElementById('place-error');
+    errorDiv.style.display = 'none';
+    if(!name) { errorDiv.textContent = "El nombre es obligatorio"; errorDiv.style.display = 'block'; return; }
+    if(!roomId) { errorDiv.textContent = "Debes seleccionar una habitación"; errorDiv.style.display = 'block'; return; }
 
     fetch("{% url 'create_place_ajax' %}", {
         method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({name: name, description: desc})
+        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name, description: desc, room: roomId})
     })
     .then(res => res.json())
     .then(data => {
@@ -106,24 +173,24 @@ document.getElementById('savePlaceBtn').addEventListener('click', function() {
             option.selected = true;
             select.add(option);
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('newPlaceModal'));
-            modal.hide();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('newPlaceModal')).hide();
+            document.getElementById('place-name').value = '';
+            document.getElementById('place-desc').value = '';
         } else {
-            alert(data.error);
+            errorDiv.textContent = data.error;
+            errorDiv.style.display = 'block';
         }
-    })
+    });
 });
 
+// ---------- AJAX TIPO ----------
 document.getElementById('saveTypeBtn').addEventListener('click', function() {
-    const name = document.getElementById('type-name').value;
+    const name = document.getElementById('type-name').value.trim();
     if(!name) return alert('El nombre es obligatorio');
 
     fetch("{% url 'create_objtype_ajax' %}", {
         method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Content-Type': 'application/json'
-        },
+        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
         body: JSON.stringify({typename: name})
     })
     .then(res => res.json())
@@ -135,13 +202,69 @@ document.getElementById('saveTypeBtn').addEventListener('click', function() {
             option.text = data.name;
             option.selected = true;
             select.add(option);
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('newTypeModal')).hide();
+            document.getElementById('type-name').value = '';
+        } else alert(data.error);
+    });
+});
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('newTypeModal'));
-            modal.hide();
-        } else {
-            alert(data.error);
-        }
+// ---------- AJAX HABITACIÓN ----------
+document.getElementById('saveRoomBtn').addEventListener('click', function() {
+    const name = document.getElementById('room-name').value.trim();
+    const errorDiv = document.getElementById('room-error');
+    errorDiv.style.display = 'none';
+    if(!name) { errorDiv.textContent = "El nombre es obligatorio"; errorDiv.style.display = 'block'; return; }
+
+    fetch("{% url 'create_room_ajax' %}", {
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name})
     })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            const select = document.getElementById('id_placelabel'); // Aquí podrías actualizar select de lugares también
+            const option = document.createElement('option');
+            option.value = data.id;
+            option.text = data.name;
+            option.selected = true;
+            select.add(option);
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('newRoomModal')).hide();
+            document.getElementById('room-name').value = '';
+        } else {
+            errorDiv.textContent = data.error;
+            errorDiv.style.display = 'block';
+        }
+    });
+});
+
+// ---------- AJAX CAJÓN ----------
+document.getElementById('saveBoxBtn').addEventListener('click', function() {
+    const name = document.getElementById('box-name').value.trim();
+    const placeId = document.getElementById('box-place').value;
+    if(!name || !placeId) return alert('El nombre y lugar son obligatorios');
+
+    fetch("{% url 'create_box_ajax' %}", {
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name, place: placeId})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            const select = document.getElementById('id_placelabel');
+            const option = document.createElement('option');
+            option.value = data.id;
+            option.text = data.name;
+            option.selected = true;
+            select.add(option);
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('newBoxModal')).hide();
+            document.getElementById('box-name').value = '';
+            document.getElementById('box-place').value = '';
+        } else alert(data.error);
+    });
 });
 </script>
 {% endblock %}

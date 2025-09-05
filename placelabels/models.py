@@ -29,7 +29,10 @@ class ObjType(models.Model):
 
 class Room(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # <-- agregar esto
 
+    class Meta:
+        unique_together = ('user', 'name')  # cada usuario puede tener habitaciones con nombres únicos
     def __str__(self):
         return self.name
 
@@ -37,7 +40,8 @@ class Room(models.Model):
 class PlaceLabel(models.Model):
     name = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True)
+    description = models.TextField(blank=True)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
     pseudonym = models.CharField(max_length=20, blank=True)
 
     class Meta:
@@ -78,7 +82,7 @@ class BoxLabel(models.Model):
         if not self.pseudonym:
             # Buscar cuántos boxlabels tiene ya ese place
             count = BoxLabel.objects.filter(user=self.user, place=self.place).count() + 1
-            self.pseudonym = f"{self.place.pseudonym}-C{count}"
+            self.pseudonym = f"C{count}"
 
         super().save(*args, **kwargs)
 

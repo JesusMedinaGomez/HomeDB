@@ -5,6 +5,13 @@
     <div class="card">
         <div class="card-body">
             <p><strong>Descripción:</strong> {{ obj.description }}</p>
+            <p class="mb-1"><strong>Etiqueta:</strong>
+                    {{ obj.placelabel.pseudonym }}
+                    {% if obj.boxlabel %}
+                    -{{ obj.boxlabel.pseudonym }}
+                    {% endif %}
+                </p>
+
             <p><strong>Lugar:</strong> {{ obj.placelabel.name }} ({{ obj.placelabel.pseudonym }})</p>
             <p><strong>Cajón:</strong> {{ obj.boxlabel.pseudonym|default:"N/A" }}</p>
             <p><strong>Tipo:</strong> {{ obj.label.typename|default:"N/A" }}</p>

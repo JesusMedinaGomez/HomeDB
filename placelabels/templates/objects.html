@@ -21,21 +21,27 @@
             <div class="card-body">
                 <!-- Información básica -->
                 <h5 class="card-title">{{ obj.name }}</h5>
-                <p class="mb-1"><strong>Lugar:</strong> {{ obj.placelabel.pseudonym }}</p>
+                <p class="mb-1"><strong>Etiqueta:</strong>
+                    {{ obj.placelabel.pseudonym }}
+                    {% if obj.boxlabel %}
+                    -{{ obj.boxlabel.pseudonym }}
+                    {% endif %}
+                </p>
+
 
                 <!-- Botones -->
                 <a href="{% url 'object_detail' obj.id %}" class="btn btn-sm btn-info">Ver más</a>
                 <a href="{% url 'edit_object' obj.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
 
-                <a href="#" class="btn btn-sm btn-outline-danger"
-                   onclick="event.preventDefault(); 
+                <a href="#" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault(); 
                    if(confirm('¿Seguro que quieres eliminar este objeto?')) {
                        document.getElementById('delete-{{ obj.id }}').submit();
                    }">
                     Eliminar
                 </a>
 
-                <form id="delete-{{ obj.id }}" action="{% url 'delete_object' obj.id %}" method="post" style="display:none;">
+                <form id="delete-{{ obj.id }}" action="{% url 'delete_object' obj.id %}" method="post"
+                    style="display:none;">
                     {% csrf_token %}
                 </form>
             </div>

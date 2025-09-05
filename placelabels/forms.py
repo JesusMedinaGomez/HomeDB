@@ -43,11 +43,12 @@ class CreateObjForm(forms.ModelForm):
 class CreatePlaceForm(forms.ModelForm):
     class Meta:
         model = PlaceLabel
-        fields = ['name', 'room']
-        labels = {'name': 'Nombre del lugar/mueble', 'room': 'Habitación'}
+        fields = ['name', 'description','room']
+        labels = {'name': 'Nombre del lugar/mueble', 'room': 'Habitación', 'description': 'Descripción'}
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'room': forms.Select(attrs={'class': 'form-select'})
+            'room': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
         }
 
     def __init__(self, *args, **kwargs):

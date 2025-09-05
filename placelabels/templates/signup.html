@@ -1,12 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Sign up</h1>
-{{error}}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
 <form method="POST">
     {% csrf_token %}
-    {{form.as_p}}
-    <button>
-        Signup
-    </button>
+    <div class="mb-3">
+        <label>Usuario</label>
+        <input type="text" name="username" class="form-control" value="{{ username|default:'' }}">
+    </div>
+    <div class="mb-3">
+        <label>Contraseña</label>
+        <input type="password" name="password1" class="form-control">
+    </div>
+    <div class="mb-3">
+        <label>Repetir Contraseña</label>
+        <input type="password" name="password2" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Registrarse</button>
 </form>
 {% endblock %}
