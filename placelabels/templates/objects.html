@@ -5,6 +5,14 @@
     <a href="/objetos/crear" class="btn btn-success">+ Añadir Objeto</a>
 </div>
 
+<!-- Formulario de búsqueda -->
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Buscar objeto..." value="{{ query }}">
+        <button class="btn btn-primary" type="submit">Buscar</button>
+    </div>
+</form>
+
 {% if objs %}
 <div class="row">
     {% for obj in objs %}

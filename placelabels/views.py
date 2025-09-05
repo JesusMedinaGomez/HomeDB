@@ -8,6 +8,7 @@ from .models import Objects, PlaceLabel, ObjType, BoxLabel, Room
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.db.models import Q
 
 @csrf_exempt
 def create_place_ajax(request):
@@ -154,8 +155,12 @@ def create_box(request):
         
 # READ
 def objects(request):
-    objs = Objects.objects.filter(user=request.user)
-    return render(request, 'objects.html', {'objs': objs})
+    query = request.GET.get('q', '')  # Obtener el término de búsqueda
+    if query:
+        objs = Objects.objects.filter(user=request.user, name__icontains=query)
+    else:
+        objs = Objects.objects.filter(user=request.user)
+    return render(request, 'objects.html', {'objs': objs, 'query': query})
 
 def places(request):
     places = PlaceLabel.objects.filter(user=request.user)
