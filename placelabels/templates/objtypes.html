@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Tipos de Objeto</h1>
+    <a href="/tipo_objetos/crear" class="btn btn-warning">+ Añadir Tipo</a>
+</div>
+
+{% if objtypes %}
+<div class="row">
+    {% for objtype in objtypes %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <span>{{ objtype.typename }}</span>
+                    <div>
+                        <a href="{% url 'edit_objtype' objtype.id %}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
+                        <a href="#" class="btn btn-sm btn-outline-danger"
+                           onclick="event.preventDefault(); 
+                                    if(confirm('¿Seguro que quieres eliminar este tipo de objeto?')) {
+                                        document.getElementById('delete-{{ objtype.id }}').submit();
+                                    }">
+                           Eliminar
+                        </a>
+                        <form id="delete-{{ objtype.id }}" action="{% url 'delete_objtype' objtype.id %}" method="post" style="display:none;">
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">No tienes tipos de objeto todavía.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Añadir Objeto</h1>
+
+    <!-- Mensaje de error global -->
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" id="create-object-form">
+        {% csrf_token %}
+
+        <!-- Campos del formulario -->
+        {% for field in form %}
+        <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field|add_class:"form-control" }}
+            {% if field.errors %}
+            <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+            {% endif %}
+            {% if field.help_text %}
+            <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <!-- Botones para añadir lugar o tipo -->
+        <div class="mb-3">
+            <button type="button" class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newPlaceModal">
+                + Nuevo Lugar
+            </button>
+            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#newTypeModal">
+                + Nuevo Tipo
+            </button>
+        </div>
+
+        <button type="submit" class="btn btn-success">Crear Objeto</button>
+    </form>
+</div>
+
+<!-- Modal para crear Lugar -->
+<div class="modal fade" id="newPlaceModal" tabindex="-1" aria-labelledby="newPlaceLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="new-place-form">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newPlaceLabel">Nuevo Lugar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="place-name" class="form-control mb-2" placeholder="Nombre del lugar">
+          <textarea id="place-desc" class="form-control" placeholder="Descripción"></textarea>
+          <div id="place-error" class="text-danger mt-1" style="display:none;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="savePlaceBtn">Guardar Lugar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para crear Tipo -->
+<div class="modal fade" id="newTypeModal" tabindex="-1" aria-labelledby="newTypeLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="new-type-form">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newTypeLabel">Nuevo Tipo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="type-name" class="form-control" placeholder="Nombre del tipo">
+          <div id="type-error" class="text-danger mt-1" style="display:none;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-warning" id="saveTypeBtn">Guardar Tipo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// AJAX para crear lugar
+document.getElementById('savePlaceBtn').addEventListener('click', function() {
+    const name = document.getElementById('place-name').value.trim();
+    const desc = document.getElementById('place-desc').value.trim();
+    const errorDiv = document.getElementById('place-error');
+    errorDiv.style.display = 'none';
+    if(!name) { errorDiv.textContent = "El nombre es obligatorio"; errorDiv.style.display = 'block'; return; }
+
+    fetch("{% url 'create_place_ajax' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({name: name, description: desc})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            const select = document.getElementById('id_placelabel');
+            const option = document.createElement('option');
+            option.value = data.id;
+            option.text = data.name;
+            option.selected = true;
+            select.add(option);
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('newPlaceModal'));
+            modal.hide();
+            document.getElementById('place-name').value = '';
+            document.getElementById('place-desc').value = '';
+        } else {
+            errorDiv.textContent = data.error;
+            errorDiv.style.display = 'block';
+        }
+    });
+});
+
+// AJAX para crear tipo
+document.getElementById('saveTypeBtn').addEventListener('click', function() {
+    const name = document.getElementById('type-name').value.trim();
+    const errorDiv = document.getElementById('type-error');
+    errorDiv.style.display = 'none';
+    if(!name) { errorDiv.textContent = "El nombre es obligatorio"; errorDiv.style.display = 'block'; return; }
+
+    fetch("{% url 'create_objtype_ajax' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({typename: name})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            const select = document.getElementById('id_label');
+            const option = document.createElement('option');
+            option.value = data.id;
+            option.text = data.name;
+            option.selected = true;
+            select.add(option);
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('newTypeModal'));
+            modal.hide();
+            document.getElementById('type-name').value = '';
+        } else {
+            errorDiv.textContent = data.error;
+            errorDiv.style.display = 'block';
+        }
+    });
+});
+</script>
+{% endblock %}

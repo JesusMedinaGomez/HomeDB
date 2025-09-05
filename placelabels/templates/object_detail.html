@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ obj.name }}</h1>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>Descripción:</strong> {{ obj.description }}</p>
+            <p><strong>Lugar:</strong> {{ obj.placelabel.name }} ({{ obj.placelabel.pseudonym }})</p>
+            <p><strong>Tipo:</strong> {{ obj.label.typename|default:"N/A" }}</p>
+            <p><strong>Importante:</strong> {% if obj.important %}Sí{% else %}No{% endif %}</p>
+            <p><strong>Propietario:</strong> {{ obj.whoIsIt }}</p>
+            <p><strong>¿Está en su lugar?:</strong> {% if obj.isInPlace %}Sí{% else %}No{% endif %}</p>
+            <p><strong>¿Quién lo tiene actualmente?:</strong> {{ obj.hasIt }}</p>
+            <p><strong>Fecha de creación:</strong> {{ obj.datereg|date:"d/m/Y H:i:s" }}</p>
+
+            <a href="{% url 'edit_object' obj.id %}" class="btn btn-sm btn-outline-primary mt-3">Editar</a>
+            <a href="{% url 'objects' %}" class="btn btn-sm btn-secondary mt-3">Volver</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

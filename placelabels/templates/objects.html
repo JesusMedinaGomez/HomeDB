@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Objetos</h1>
+    <a href="/objetos/crear" class="btn btn-success">+ Añadir Objeto</a>
+</div>
+
+{% if objs %}
+<div class="row">
+    {% for obj in objs %}
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <!-- Información básica -->
+                <h5 class="card-title">{{ obj.name }}</h5>
+                <p class="mb-1"><strong>Lugar:</strong> {{ obj.placelabel.pseudonym }}</p>
+
+                <!-- Botones -->
+                <a href="{% url 'object_detail' obj.id %}" class="btn btn-sm btn-info">Ver más</a>
+                <a href="{% url 'edit_object' obj.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
+
+                <a href="#" class="btn btn-sm btn-outline-danger"
+                   onclick="event.preventDefault(); 
+                   if(confirm('¿Seguro que quieres eliminar este objeto?')) {
+                       document.getElementById('delete-{{ obj.id }}').submit();
+                   }">
+                    Eliminar
+                </a>
+
+                <form id="delete-{{ obj.id }}" action="{% url 'delete_object' obj.id %}" method="post" style="display:none;">
+                    {% csrf_token %}
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">No tienes objetos todavía.</div>
+{% endif %}
+{% endblock %}

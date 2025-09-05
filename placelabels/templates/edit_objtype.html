@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<h1>Editar Tipo de Objeto</h1>
+
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    {{ error }}
+</div>
+{% endif %}
+
+<form method="POST" id="edit-type-form">
+    {% csrf_token %}
+
+    <!-- Campos editables -->
+    <div class="mb-3">
+        <label for="{{ form.typename.id_for_label }}" class="form-label">Nombre del Tipo</label>
+        {{ form.typename|add_class:"form-control" }}
+        {% if form.typename.errors %}
+        <div class="text-danger small mt-1">{{ form.typename.errors|striptags }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-success">Actualizar Tipo</button>
+</form>
+{% endblock %}
