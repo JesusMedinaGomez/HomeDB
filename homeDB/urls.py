@@ -37,6 +37,14 @@ urlpatterns = [
     path("tipo_objetos/delete/<int:pk>/", views.delete_objtype, name="delete_objtype"),
     path('objetos/crear/ajax/place/', views.create_place_ajax, name='create_place_ajax'),
     path('objetos/crear/ajax/type/', views.create_objtype_ajax, name='create_objtype_ajax'),
+    path('cajones/', views.boxes, name='boxes'),
+    path('cajones/crear', views.create_box, name='create_box'),
+    path('cajones/<int:pk>/editar/', views.edit_box, name='edit_box'),
+    path('cajones/<int:pk>/eliminar/', views.delete_box, name='delete_box'),
+    path("habitaciones/", views.rooms, name="rooms"),
+    path("habitaciones/crear/", views.create_room, name="create_room"),
+    path("habitaciones/<int:pk>/editar/", views.edit_room, name="edit_room"),
+    path("habitaciones/<int:pk>/eliminar/", views.delete_room, name="delete_room"),
     path('logout/', views.mylogout, name='logout'),
     path('login/', views.mylogin, name='login')
 ]

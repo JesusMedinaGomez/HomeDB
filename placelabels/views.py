@@ -3,8 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
-from .forms import CreateObjForm, CreatePlaceForm, CreateObjTypeForm
-from .models import Objects, PlaceLabel, ObjType
+from .forms import CreateObjForm, CreatePlaceForm, CreateObjTypeForm, CreateBoxForm, RoomForm
+from .models import Objects, PlaceLabel, ObjType, BoxLabel, Room
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -65,6 +65,23 @@ def signup(request):
 
 
 # CREATE
+def create_room(request):
+    if request.method == 'GET':
+        form = RoomForm()
+        return render(request, 'create_room.html', {'form': form})
+    else: 
+        form = RoomForm(request.POST)
+        if form.is_valid():
+            new_obj = form.save(commit=False)
+            new_obj.user = request.user
+            new_obj.save()
+            return redirect('rooms')
+        else:
+            return render(request, 'create_room.html', {
+                'form': form,
+                'error': 'Por favor completa los datos correctamente'
+            })
+        
 def create_obj(request):
     if request.method == 'GET':
         form = CreateObjForm(user=request.user)
@@ -93,7 +110,7 @@ def create_place(request):
             new_place = form.save(commit=False)
             new_place.user = request.user
             new_place.save()
-            return redirect('objects')
+            return redirect('places')
         else:
             return render(request, 'create_place.html', {
                 'form': form,
@@ -110,12 +127,30 @@ def create_objtype(request):
             new_objtype = form.save(commit=False)
             new_objtype.user = request.user
             new_objtype.save()
-            return redirect('objects')
+            return redirect('objtypes')
         else:
             return render(request, 'create_objtype.html', {
                 'form': form,
                 'error': 'Por favor completa los datos correctamente'
             })
+        
+def create_box(request):
+    if request.method == "POST":
+        form = CreateBoxForm(request.POST, user=request.user)
+        if form.is_valid():
+            box = form.save(commit=False)
+            box.user = request.user
+            # Generar name/pseudonym si es necesario
+            count = BoxLabel.objects.filter(user=request.user, place=box.place).count() + 1
+            box.name = f"{box.place.pseudonym}-C{count}"
+            box.save()
+            return redirect("boxes")
+    else:
+        form = CreateBoxForm(user=request.user)
+
+    return render(request, "create_box.html", {"form": form})
+
+
         
 # READ
 def objects(request):
@@ -134,47 +169,16 @@ def object_detail(request, pk):
     obj = get_object_or_404(Objects, pk=pk, user=request.user)
     return render(request, 'object_detail.html', {'obj': obj})
 
+def boxes(request):
+    boxes = BoxLabel.objects.all()
+    return render(request, 'boxes.html', {'boxes': boxes})
+
+def rooms(request):
+    rooms = Room.objects.all()
+    return render(request, "rooms.html", {"rooms": rooms})
+
+
 # UPDATE
-def edit_object(request, pk):
-    obj = get_object_or_404(Objects, pk=pk, user=request.user)
-
-    if request.method == 'GET':
-        form = CreateObjForm(instance=obj, user=request.user)
-        return render(request, 'edit_object.html', {'form': form, 'obj': obj})
-    else:  # POST
-        form = CreateObjForm(request.POST, instance=obj, user=request.user)
-        if form.is_valid():
-            edited_obj = form.save(commit=False)
-            edited_obj.user = request.user  
-            edited_obj.save()
-            return redirect('objects')
-        else:
-            return render(request, 'edit_object.html', {
-                'form': form,
-                'obj': obj,
-                'error': 'Por favor completa los datos correctamente'
-            })
-        
-def edit_object(request, pk):
-    obj = get_object_or_404(Objects, pk=pk, user=request.user)
-
-    if request.method == 'GET':
-        form = CreateObjForm(instance=obj, user=request.user)
-        return render(request, 'edit_object.html', {'form': form, 'obj': obj})
-    else:  # POST
-        form = CreateObjForm(request.POST, instance=obj, user=request.user)
-        if form.is_valid():
-            edited_obj = form.save(commit=False)
-            edited_obj.user = request.user  
-            edited_obj.save()
-            return redirect('objects')
-        else:
-            return render(request, 'edit_object.html', {
-                'form': form,
-                'obj': obj,
-                'error': 'Por favor completa los datos correctamente'
-            })
-
 
 def edit_object(request, pk):
     obj = get_object_or_404(Objects, pk=pk, user=request.user)
@@ -196,6 +200,25 @@ def edit_object(request, pk):
                 'error': 'Por favor completa los datos correctamente'
             })
 
+def edit_room(request, pk):
+    room = get_object_or_404(Room, pk=pk, user=request.user)
+
+    if request.method == 'GET':
+        form = CreateObjForm(instance=room, user=request.user)
+        return render(request, 'edit_room.html', {'form': form, 'obj': room})
+    else:  # POST
+        form = CreateObjForm(request.POST, instance=room, user=request.user)
+        if form.is_valid():
+            edited_obj = form.save(commit=False)
+            edited_obj.user = request.user  
+            edited_obj.save()
+            return redirect('rooms')
+        else:
+            return render(request, 'edit_room.html', {
+                'form': form,
+                'obj': room,
+                'error': 'Por favor completa los datos correctamente'
+            })
 
 def edit_objtype(request, pk):
     objtype = get_object_or_404(ObjType, pk=pk, user=request.user)
@@ -237,6 +260,27 @@ def edit_place(request, pk):
                 'obj': place,
                 'error': 'Por favor completa los datos correctamente'
             })
+
+def edit_box(request, pk):
+    box = get_object_or_404(BoxLabel, pk=pk, user=request.user)
+
+    if request.method == 'GET':
+        form = CreateBoxForm(instance=box)
+        return render(request, 'edit_box.html', {'form': form, 'obj': box})
+    else:  # POST
+        form = CreateBoxForm(request.POST, instance=box)
+        if form.is_valid():
+            edited_box = form.save(commit=False)
+            edited_box.user = request.user  
+            edited_box.save()
+            return redirect('boxes')
+        else:
+            return render(request, 'edit_box.html', {
+                'form': form,
+                'obj': box,
+                'error': 'Por favor completa los datos correctamente'
+            })
+        
 # DELETE
 def delete_object(request, pk):
     obj = get_object_or_404(Objects, pk=pk)
@@ -246,13 +290,20 @@ def delete_object(request, pk):
 def delete_place(request, pk):
     place = get_object_or_404(PlaceLabel, pk=pk)
     place.delete()
-    return redirect("objects") 
+    return redirect("places") 
 
 def delete_objtype(request, pk):
     objtype = get_object_or_404(ObjType, pk=pk)
     objtype.delete()
-    return redirect("objects")  
-
+    return redirect("objtypes")  
+def delete_box(request, pk):
+    box = get_object_or_404(BoxLabel, pk=pk)
+    box.delete()
+    return redirect("boxes")
+def delete_room(request, pk):
+    room = get_object_or_404(Room, pk=pk)
+    room.delete()
+    return redirect("rooms")
 
 
 def mylogout(request):

@@ -6,6 +6,7 @@
         <div class="card-body">
             <p><strong>Descripción:</strong> {{ obj.description }}</p>
             <p><strong>Lugar:</strong> {{ obj.placelabel.name }} ({{ obj.placelabel.pseudonym }})</p>
+            <p><strong>Cajón:</strong> {{ obj.boxlabel.pseudonym|default:"N/A" }}</p>
             <p><strong>Tipo:</strong> {{ obj.label.typename|default:"N/A" }}</p>
             <p><strong>Importante:</strong> {% if obj.important %}Sí{% else %}No{% endif %}</p>
             <p><strong>Propietario:</strong> {{ obj.whoIsIt }}</p>
