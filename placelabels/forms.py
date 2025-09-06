@@ -28,14 +28,18 @@ class CreateObjForm(forms.ModelForm):
             'isInPlace': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        if user:
-            self.fields['label'].queryset = ObjType.objects.filter(user=user)
-            self.fields['placelabel'].queryset = PlaceLabel.objects.filter(user=user)
-            self.fields['boxlabel'].queryset = BoxLabel.objects.filter(user=user)
-            self.fields['boxlabel'].required = False  # que sea opcional
+        def __init__(self, *args, **kwargs):
+            user = kwargs.pop('user', None)
+            super().__init__(*args, **kwargs)
+            if user:
+                self.fields['label'].queryset = ObjType.objects.filter(user=user)
+                self.fields['placelabel'].queryset = PlaceLabel.objects.filter(user=user)
+                self.fields['placelabel'].label_from_instance = lambda obj: obj.name  # mostrar solo el nombre
+                self.fields['boxlabel'].queryset = BoxLabel.objects.filter(user=user)
+                # mostrar placelabel-boxlabel si existe, o solo placelabel si boxlabel es None
+                self.fields['boxlabel'].label_from_instance = lambda obj: f"{obj.placelabel.name}-{obj.name}" if obj.name else obj.placelabel.name
+                self.fields['boxlabel'].required = False  # que sea opcional
+
 
 
 
