@@ -34,12 +34,13 @@ class CreateObjForm(forms.ModelForm):
             if user:
                 self.fields['label'].queryset = ObjType.objects.filter(user=user)
                 self.fields['placelabel'].queryset = PlaceLabel.objects.filter(user=user)
-                self.fields['placelabel'].label_from_instance = lambda obj: obj.name  # mostrar solo el nombre
-                self.fields['boxlabel'].queryset = BoxLabel.objects.filter(user=user)
-                # mostrar placelabel-boxlabel si existe, o solo placelabel si boxlabel es None
-                self.fields['boxlabel'].label_from_instance = lambda obj: f"{obj.placelabel.name}-{obj.name}" if obj.name else obj.placelabel.name
+                self.fields['boxlabel'].queryset = BoxLabel.objects.filter(user=user).select_related('placelabel')
                 self.fields['boxlabel'].required = False  # que sea opcional
 
+                # Mostrar "Lugar-Cajón" o solo "Lugar" si no hay cajón
+                self.fields['boxlabel'].label_from_instance = lambda obj: (
+                    f"{getattr(obj.placelabel, 'name', '')}-{obj.name}" if obj.name else getattr(obj.placelabel, 'name', '')
+                )
 
 
 
