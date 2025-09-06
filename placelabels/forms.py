@@ -5,7 +5,7 @@ from .models import Objects, PlaceLabel, ObjType, BoxLabel, Room
 class CreateObjForm(forms.ModelForm):
     class Meta:
         model = Objects
-        exclude = ['user','datereg']
+        exclude = ['user', 'datereg']
         labels = {
             'name': 'Nombre del objeto',
             'description': 'Descripción',
@@ -28,19 +28,23 @@ class CreateObjForm(forms.ModelForm):
             'isInPlace': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
-        def __init__(self, *args, **kwargs):
-            user = kwargs.pop('user', None)
-            super().__init__(*args, **kwargs)
-            if user:
-                self.fields['label'].queryset = ObjType.objects.filter(user=user)
-                self.fields['placelabel'].queryset = PlaceLabel.objects.filter(user=user)
-                self.fields['boxlabel'].queryset = BoxLabel.objects.filter(user=user).select_related('placelabel')
-                self.fields['boxlabel'].required = False  # que sea opcional
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
 
-                # Mostrar "Lugar-Cajón" o solo "Lugar" si no hay cajón
-                self.fields['boxlabel'].label_from_instance = lambda obj: (
-                    f"{getattr(obj.placelabel, 'name', '')}-{obj.name}" if obj.name else getattr(obj.placelabel, 'name', '')
-                )
+        if user:
+            # Filtrar por usuario
+            self.fields['label'].queryset = ObjType.objects.filter(user=user)
+            self.fields['placelabel'].queryset = PlaceLabel.objects.filter(user=user)
+            self.fields['boxlabel'].queryset = BoxLabel.objects.filter(place__user=user)
+            self.fields['boxlabel'].required = False  # opcional
+
+            # Mostrar nombres personalizados: "Lugar-Cajón"
+            self.fields['boxlabel'].label_from_instance = lambda obj: (
+                f"{obj.placelabel.name}-{obj.name}" 
+                if obj.placelabel and obj.name else
+                obj.placelabel.name if obj.placelabel else obj.name
+            )
 
 
 
