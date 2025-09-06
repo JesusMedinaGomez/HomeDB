@@ -44,8 +44,9 @@ class PlaceLabel(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     pseudonym = models.CharField(max_length=20, blank=True)
 
-    class Meta:
-        unique_together = ('user', 'name')
+    # Eliminamos cualquier restricción de unicidad
+    # class Meta:
+    #     unique_together = ('user', 'name')  <-- eliminado
 
     def save(self, *args, **kwargs):
         self.name = strip_accents(self.name).upper()
@@ -57,7 +58,8 @@ class PlaceLabel(models.Model):
                 room_prefix = "XX"
 
             place_prefix = ''.join(word[0] for word in self.name.split()).upper()
-            count = PlaceLabel.objects.filter(user=self.user, room=self.room).count() + 1
+            # Contamos cuántos lugares hay con el mismo nombre en la misma habitación
+            count = PlaceLabel.objects.filter(room=self.room, name=self.name).count() + 1
             self.pseudonym = f"{room_prefix}{place_prefix}{count}"
 
         super().save(*args, **kwargs)
