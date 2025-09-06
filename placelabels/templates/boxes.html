@@ -6,31 +6,47 @@
 </div>
 
 {% if boxes %}
-<div class="row">
+<div class="row g-3">
     {% for box in boxes %}
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title mb-1">{{ box.place }}-{{ box.pseudonym }}</h5>
-                    <div class="mt-2 d-flex flex-column">
-                        <a href="{% url 'edit_box' box.id %}" class="btn btn-sm btn-outline-primary mb-1">Editar</a>
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body d-flex flex-column">
+                    
+                    <!-- Encabezado del cajón -->
+                    <h5 class="card-title text-primary fw-bold">
+                        {{ box.place.room.name }}
+                    </h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        {{ box.place.name }} • {{ box.pseudonym }}
+                    </h6>
+
+                    <!-- Botones -->
+                    <div class="mt-auto d-flex justify-content-between">
+                       
                         <a href="#" class="btn btn-sm btn-outline-danger"
                            onclick="event.preventDefault();
                                     if(confirm('¿Seguro que quieres eliminar este cajón?')) {
                                         document.getElementById('delete-{{ box.id }}').submit();
                                     }">
-                            Eliminar
+                            🗑️ Eliminar
                         </a>
-                        <form id="delete-{{ box.id }}" action="{% url 'delete_box' box.id %}" method="post" style="display:none;">
-                            {% csrf_token %}
-                        </form>
                     </div>
+
+                    <!-- Formulario oculto -->
+                    <form id="delete-{{ box.id }}" 
+                          action="{% url 'delete_box' box.id %}" 
+                          method="post" style="display:none;">
+                        {% csrf_token %}
+                    </form>
                 </div>
             </div>
         </div>
     {% endfor %}
 </div>
 {% else %}
-<div class="alert alert-info">No tienes cajones todavía.</div>
+<div class="alert alert-info text-center py-3 shadow-sm">
+    🚫 No tienes cajones todavía.
+</div>
 {% endif %}
+
 {% endblock %}

@@ -41,10 +41,16 @@ class CreateObjForm(forms.ModelForm):
 
             # Mostrar nombres personalizados: "Lugar-Cajón"
             self.fields['boxlabel'].label_from_instance = lambda obj: (
-                f"{obj.placelabel.name}-{obj.name}" 
-                if obj.placelabel and obj.name else
-                obj.placelabel.name if obj.placelabel else obj.name
+                f"{obj.place.room.name} - {obj.name} ({obj.place.name})" 
+                if obj.place and obj.name else
+                obj.place.name if obj.place else obj.name
             )
+            self.fields['placelabel'].label_from_instance = lambda obj: (
+            f"{obj.name} - {obj.pseudonym} ({obj.room.name})"
+            if obj.room else f"{obj.name} - {obj.pseudonym}"
+            )
+
+
 
 
 

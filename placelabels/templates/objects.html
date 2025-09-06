@@ -2,54 +2,123 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>Objetos</h1>
-    <a href="/objetos/crear" class="btn btn-success">+ Añadir Objeto</a>
+    <a href="{% url 'create_obj' %}" class="btn btn-success">+ Añadir Objeto</a>
+</div>
+
+<div class="mb-3 d-flex flex-wrap gap-2">
+
+    <!-- Filtro Habitación -->
+    <div class="dropdown">
+        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            Habitación
+        </button>
+        <ul class="dropdown-menu">
+            {% for room in rooms %}
+                <li><a class="dropdown-item" href="?room={{ room.id }}">{{ room.name }}</a></li>
+            {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'objects' %}">Todas</a></li>
+        </ul>
+    </div>
+
+    <!-- Filtro Lugar/Mueble -->
+    <div class="dropdown">
+        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            Lugar/Mueble
+        </button>
+        <ul class="dropdown-menu">
+            {% for place in places %}
+                <li><a class="dropdown-item" href="?place={{ place.id }}">{{ place.pseudonym }}</a></li>
+            {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'objects' %}">Todos</a></li>
+        </ul>
+    </div>
+
+    <!-- Filtro Cajón -->
+    <div class="dropdown">
+        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            Cajón
+        </button>
+        <ul class="dropdown-menu">
+            {% for box in boxes %}
+                <li><a class="dropdown-item" href="?box={{ box.id }}">{{ box.name }}</a></li>
+            {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'objects' %}">Todos</a></li>
+        </ul>
+    </div>
+
+    <!-- Filtro Tipo de objeto -->
+    <div class="dropdown">
+        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            Tipo
+        </button>
+        <ul class="dropdown-menu">
+            {% for objtype in objtypes %}
+                <li><a class="dropdown-item" href="?type={{ objtype.id }}">{{ objtype.typename }}</a></li>
+            {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'objects' %}">Todos</a></li>
+        </ul>
+    </div>
+
 </div>
 
 <!-- Formulario de búsqueda -->
 <form method="get" class="mb-3">
     <div class="input-group">
-        <input type="text" name="q" class="form-control" placeholder="Buscar objeto..." value="{{ query }}">
+        <input type="text" name="q" class="form-control" placeholder="Buscar por objeto, lugar o cajón..." value="{{ query }}">
         <button class="btn btn-primary" type="submit">Buscar</button>
     </div>
 </form>
 
 {% if objs %}
-<div class="row">
+<div class="row g-3">
     {% for obj in objs %}
-    <div class="col-md-6 col-lg-4 mb-3">
-        <div class="card h-100">
-            <div class="card-body">
-                <!-- Información básica -->
-                <h5 class="card-title">{{ obj.name }}</h5>
-                <p class="mb-1"><strong>Etiqueta:</strong>
-                    {{ obj.placelabel.pseudonym }}
-                    {% if obj.boxlabel %}
-                    -{{ obj.boxlabel.pseudonym }}
-                    {% endif %}
-                </p>
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-primary fw-bold">{{ obj.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        {{ obj.placelabel.pseudonym }}
+                        {% if obj.boxlabel %}
+                            • {{ obj.boxlabel.pseudonym }}
+                        {% endif %}
+                    </h6>
+                    <p class="mb-2"><strong>Habitación:</strong>
+                        {% if obj.placelabel %}
+                            {{ obj.placelabel.room.name }}
+                        {% elif obj.boxlabel %}
+                            {{ obj.boxlabel.place.room.name }}
+                        {% else %}
+                            No asignada
+                        {% endif %}
+                    </p>
 
+                    <div class="mt-auto d-flex justify-content-between">
+                        <a href="{% url 'object_detail' obj.id %}" class="btn btn-sm btn-info">👀 Ver más</a>
+                        <a href="{% url 'edit_object' obj.id %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+                        <a href="#" class="btn btn-sm btn-outline-danger"
+                           onclick="event.preventDefault();
+                                    if(confirm('¿Seguro que quieres eliminar este objeto?')) {
+                                        document.getElementById('delete-{{ obj.id }}').submit();
+                                    }">
+                            🗑️ Eliminar
+                        </a>
+                    </div>
 
-                <!-- Botones -->
-                <a href="{% url 'object_detail' obj.id %}" class="btn btn-sm btn-info">Ver más</a>
-                <a href="{% url 'edit_object' obj.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
-
-                <a href="#" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault(); 
-                   if(confirm('¿Seguro que quieres eliminar este objeto?')) {
-                       document.getElementById('delete-{{ obj.id }}').submit();
-                   }">
-                    Eliminar
-                </a>
-
-                <form id="delete-{{ obj.id }}" action="{% url 'delete_object' obj.id %}" method="post"
-                    style="display:none;">
-                    {% csrf_token %}
-                </form>
+                    <form id="delete-{{ obj.id }}" action="{% url 'delete_object' obj.id %}" method="post" style="display:none;">
+                        {% csrf_token %}
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
     {% endfor %}
 </div>
 {% else %}
-<div class="alert alert-info">No tienes objetos todavía.</div>
+<div class="alert alert-info text-center py-3 shadow-sm">
+    🚫 No tienes objetos todavía.
+</div>
 {% endif %}
 {% endblock %}

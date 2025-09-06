@@ -6,33 +6,35 @@
 </div>
 
 {% if rooms %}
-<div class="row">
+<div class="row g-3">
     {% for room in rooms %}
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="card-title mb-1">{{ room.name }}</h5>
-                    </div>
-                    <div class="d-flex flex-column">
-                        <a href="{% url 'edit_room' room.id %}" class="btn btn-sm btn-outline-primary mb-1">Editar</a>
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-primary fw-bold">{{ room.name }}</h5>
+
+                    <div class="mt-auto d-flex justify-content-between">
+                        <a href="{% url 'edit_room' room.id %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
                         <a href="#" class="btn btn-sm btn-outline-danger"
                            onclick="event.preventDefault();
                                     if(confirm('¿Seguro que quieres eliminar esta habitación?')) {
                                         document.getElementById('delete-{{ room.id }}').submit();
                                     }">
-                            Eliminar
+                            🗑️ Eliminar
                         </a>
-                        <form id="delete-{{ room.id }}" action="{% url 'delete_room' room.id %}" method="post" style="display:none;">
-                            {% csrf_token %}
-                        </form>
                     </div>
+
+                    <form id="delete-{{ room.id }}" action="{% url 'delete_room' room.id %}" method="post" style="display:none;">
+                        {% csrf_token %}
+                    </form>
                 </div>
             </div>
         </div>
     {% endfor %}
 </div>
 {% else %}
-<div class="alert alert-info">No tienes habitaciones todavía.</div>
+<div class="alert alert-info text-center py-3 shadow-sm">
+    🚫 No tienes habitaciones todavía.
+</div>
 {% endif %}
 {% endblock %}

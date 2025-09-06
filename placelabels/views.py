@@ -235,14 +235,61 @@ def create_box(request):
 
 
         
-# READ
 def objects(request):
-    query = request.GET.get('q', '')  # Obtener el término de búsqueda
+    rooms = Room.objects.all()                # para mostrar habitaciones
+    places = PlaceLabel.objects.all()        # para mostrar lugares/muebles
+    boxes = BoxLabel.objects.all()           # para mostrar cajones
+    objtypes = ObjType.objects.all()         # para mostrar tipos de objeto
+
+    query = request.GET.get('q', '')         # término de búsqueda
+    room_id = request.GET.get('room')        # filtro por habitación
+    place_id = request.GET.get('place')      # filtro por placelabel
+    box_id = request.GET.get('box')          # filtro por cajón
+    type_id = request.GET.get('type')        # filtro por tipo de objeto
+
+    objs = Objects.objects.filter(user=request.user)
+
+    # Filtrar por habitación
+    if room_id:
+        objs = objs.filter(
+            Q(placelabel__room_id=room_id) |
+            Q(boxlabel__place__room_id=room_id)
+        )
+
+    # Filtrar por lugar/mueble
+    if place_id:
+        objs = objs.filter(placelabel_id=place_id)
+
+    # Filtrar por cajón
+    if box_id:
+        objs = objs.filter(boxlabel_id=box_id)
+
+    # Filtrar por tipo de objeto
+    if type_id:
+        objs = objs.filter(label_id=type_id)
+
+    # Filtrar por búsqueda
     if query:
-        objs = Objects.objects.filter(user=request.user, name__icontains=query)
-    else:
-        objs = Objects.objects.filter(user=request.user)
-    return render(request, 'objects.html', {'objs': objs, 'query': query})
+        objs = objs.filter(
+            Q(name__icontains=query) |
+            Q(placelabel__room__name__icontains=query) |
+            Q(placelabel__pseudonym__icontains=query) |
+            Q(boxlabel__pseudonym__icontains=query) |
+            Q(boxlabel__place__room__name__icontains=query)
+        ).distinct()
+
+    return render(request, 'objects.html', {
+        'objs': objs,
+        'rooms': rooms,
+        'places': places,
+        'boxes': boxes,
+        'objtypes': objtypes,
+        'query': query,
+        'selected_room': room_id,
+        'selected_place': place_id,
+        'selected_box': box_id,
+        'selected_type': type_id
+    })
 
 def places(request):
     places = PlaceLabel.objects.filter(user=request.user)

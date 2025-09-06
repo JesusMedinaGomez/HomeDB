@@ -75,26 +75,25 @@ class PlaceLabel(models.Model):
 
 
 class BoxLabel(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)  # nombre oficial
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     place = models.ForeignKey(PlaceLabel, on_delete=models.CASCADE, related_name="boxes")
-    pseudonym = models.CharField(max_length=20, blank=True)
-
-    class Meta:
-        unique_together = ('user', 'name')
+    pseudonym = models.CharField(max_length=20, blank=True)  # C1, C2,...
 
     def save(self, *args, **kwargs):
-        self.name = strip_accents(self.name).upper()
-
+        # Generar pseudonym de caja si no tiene
         if not self.pseudonym:
-            # Buscar cuántos boxlabels tiene ya ese place
             count = BoxLabel.objects.filter(user=self.user, place=self.place).count() + 1
             self.pseudonym = f"C{count}"
+
+        # El name oficial es: pseudonym del lugar + "-" + pseudonym de caja
+        self.name = f"{self.place.pseudonym}-{self.pseudonym}".upper()
 
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.pseudonym}"
+        return self.name
+
 
 class Objects(models.Model):
     name = models.CharField(max_length=100)
