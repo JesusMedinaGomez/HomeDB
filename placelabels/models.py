@@ -52,20 +52,22 @@ class PlaceLabel(models.Model):
         self.name = strip_accents(self.name).upper()
 
         if not self.pseudonym:
+            # Prefijo de la habitación
             if self.room and self.room.name:
                 room_prefix = ''.join(word[0] for word in self.room.name.split()).upper()
             else:
                 room_prefix = "XX"
 
+            # Prefijo del lugar
             place_prefix = ''.join(word[0] for word in self.name.split()).upper()
-            # Contamos cuántos lugares hay con el mismo nombre en la misma habitación
-            count = PlaceLabel.objects.filter(room=self.room, name=self.name).count() + 1
+
+            # Contar cuántos PlaceLabels existen en la misma habitación
+            count = PlaceLabel.objects.filter(room=self.room).count() + 1
+
             self.pseudonym = f"{room_prefix}{place_prefix}{count}"
 
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.name} ({self.pseudonym})"
 
 
 
