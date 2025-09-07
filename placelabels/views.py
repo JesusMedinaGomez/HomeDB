@@ -3,13 +3,14 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
-from .forms import CreateObjForm, CreatePlaceForm, CreateObjTypeForm, CreateBoxForm, RoomForm
+from .forms import CreateObjForm, CreatePlaceForm, CreateObjTypeForm, CreateBoxForm, RoomForm, ObjectsFormSet
 from .models import Objects, PlaceLabel, ObjType, BoxLabel, Room
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.forms import modelformset_factory
 
 # -------------------
 # Crear habitación AJAX
@@ -138,6 +139,25 @@ def signup(request):
 
 
 # CREATE
+
+def create_objects_bulk(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+
+    if request.method == 'POST':
+        formset = ObjectsFormSet(request.POST, queryset=Objects.objects.none(), form_kwargs={'user': user})
+        if formset.is_valid():
+            objs = formset.save(commit=False)
+            for obj in objs:
+                obj.user = user
+                obj.save()
+            return redirect('objects')
+    else:
+        formset = ObjectsFormSet(queryset=Objects.objects.none(), form_kwargs={'user': user})
+
+    return render(request, 'create_objects_bulk.html', {'formset': formset})
+
 def create_room(request):
     if request.method == 'POST':
         form = RoomForm(request.POST)
@@ -151,38 +171,66 @@ def create_room(request):
     return render(request, 'create_room.html', {'form': form})
 
         
+
 def create_obj(request):
-    user = request.user
+    user_rooms = Room.objects.filter(user=request.user)
+    user_places = PlaceLabel.objects.filter(user=request.user)
+    user_boxes = BoxLabel.objects.filter(user=request.user)
+    user_types = ObjType.objects.filter(user=request.user)
 
-    if not user.is_authenticated:
-        return redirect('login')
+    if request.method == "POST":
+        # Obtenemos los objetos enviados por JS
+        objects_json = request.POST.get('objects_data')
+        if not objects_json:
+            return render(request, 'create_obj.html', {
+                'error': "Agrega al menos un objeto antes de guardar",
+                'user_rooms': user_rooms,
+                'user_places': user_places,
+                'user_boxes': user_boxes,
+                'user_types': user_types,
+            })
 
-    if request.method == 'GET':
-        form = CreateObjForm(user=user)
-        error = None
-    else: 
-        form = CreateObjForm(request.POST, user=user)
-        if form.is_valid():
-            new_obj = form.save(commit=False)
-            new_obj.user = user
-            new_obj.save()
-            return redirect('objects')
-        else:
-            error = 'Por favor completa los datos correctamente'
+        objects_list = json.loads(objects_json)
 
-    # Traer habitaciones y lugares del usuario
-    user_rooms = Room.objects.filter(user=user).order_by('name')
-    user_places = PlaceLabel.objects.filter(user=user).order_by('name')
+        for obj_data in objects_list:
+            obj = Objects(
+                name=obj_data.get('name'),
+                description=obj_data.get('description'),
+                important=obj_data.get('important', False),
+                whoIsIt=obj_data.get('whoIsIt') or "Yo",
+                hasIt=obj_data.get('hasIt') or "Yo",
+                isInPlace=obj_data.get('isInPlace', True),
+                user=request.user
+            )
 
+            # Campos compartidos
+            placelabel_id = obj_data.get('placelabel')
+            boxlabel_id = obj_data.get('boxlabel')
+            type_id = obj_data.get('type')
+
+            if placelabel_id:
+                try: obj.placelabel = PlaceLabel.objects.get(id=placelabel_id, user=request.user)
+                except: pass
+            if boxlabel_id:
+                try: obj.boxlabel = BoxLabel.objects.get(id=boxlabel_id, user=request.user)
+                except: pass
+            if type_id:
+                try: obj.label = ObjType.objects.get(id=type_id, user=request.user)
+                except: pass
+
+            obj.save()
+
+        # Redirigir a la lista de objetos o la misma página
+        return redirect('objects')  # <-- tu URL de lista de objetos
+
+    # Si es GET, renderizamos el formulario vacío
     return render(request, 'create_obj.html', {
-        'form': form,
-        'error': error,
         'user_rooms': user_rooms,
-        'user_places': user_places
+        'user_places': user_places,
+        'user_boxes': user_boxes,
+        'user_types': user_types,
     })
 
-
-        
 def create_place(request):
     if request.method == 'GET':
         form = CreatePlaceForm()

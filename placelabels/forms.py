@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import modelformset_factory
 from django.forms import ModelForm
 from .models import Objects, PlaceLabel, ObjType, BoxLabel, Room
 
@@ -49,10 +50,6 @@ class CreateObjForm(forms.ModelForm):
             f"{obj.name} - {obj.pseudonym} ({obj.room.name})"
             if obj.room else f"{obj.name} - {obj.pseudonym}"
             )
-
-
-
-
 
 
 class CreatePlaceForm(forms.ModelForm):
@@ -107,3 +104,30 @@ class RoomForm(forms.ModelForm):
         fields = ['name']
         labels = {'name': 'Nombre de la habitación'}
         widgets = {'name': forms.TextInput(attrs={'class': 'form-control'})}
+
+
+# Formset de objetos (con 3 formularios vacíos por defecto)
+ObjectsFormSet = modelformset_factory(
+    Objects,
+    form=CreateObjForm,
+    extra=3,  # cantidad de formularios vacíos por defecto
+    can_delete=True
+)
+
+def create_objects_bulk(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+
+    if request.method == 'POST':
+        formset = ObjectsFormSet(request.POST, queryset=Objects.objects.none(), form_kwargs={'user': user})
+        if formset.is_valid():
+            objs = formset.save(commit=False)
+            for obj in objs:
+                obj.user = user
+                obj.save()
+            return redirect('objects')
+    else:
+        formset = ObjectsFormSet(queryset=Objects.objects.none(), form_kwargs={'user': user})
+
+    return render(request, 'create_objects_bulk.html', {'formset': formset})
