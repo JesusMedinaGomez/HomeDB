@@ -28,7 +28,7 @@
         </button>
         <ul class="dropdown-menu">
             {% for place in places %}
-                <li><a class="dropdown-item" href="?place={{ place.id }}">{{ place.pseudonym }}</a></li>
+                <li><a class="dropdown-item" href="?place={{ place.id }}">{{ place.room.name }}-{{ place.name }} ({{ place.pseudonym }})</a></li>
             {% endfor %}
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{% url 'objects' %}">Todos</a></li>
@@ -42,7 +42,7 @@
         </button>
         <ul class="dropdown-menu">
             {% for box in boxes %}
-                <li><a class="dropdown-item" href="?box={{ box.id }}">{{ box.name }}</a></li>
+                <li><a class="dropdown-item" href="?box={{ box.id }}">{{ box.place.room.name }}-{{ box.place.name }} ({{ box.pseudonym }})</a></li>
             {% endfor %}
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{% url 'objects' %}">Todos</a></li>

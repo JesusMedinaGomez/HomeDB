@@ -8,39 +8,42 @@
 {% if boxes %}
 <div class="row g-3">
     {% for box in boxes %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body d-flex flex-column">
-                    
-                    <!-- Encabezado del cajón -->
-                    <h5 class="card-title text-primary fw-bold">
-                        {{ box.place.room.name }}
-                    </h5>
-                    <h6 class="card-subtitle mb-2 text-muted">
-                        {{ box.place.name }} • {{ box.pseudonym }}
-                    </h6>
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body d-flex flex-column">
 
-                    <!-- Botones -->
-                    <div class="mt-auto d-flex justify-content-between">
-                       
-                        <a href="#" class="btn btn-sm btn-outline-danger"
-                           onclick="event.preventDefault();
+                <!-- Encabezado del cajón -->
+                <h5 class="card-title text-primary fw-bold">
+                    {{ box.place.room.name }}
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    {{ box.place.name }} • {{ box.pseudonym }}
+                </h6>
+
+                <!-- Botones -->
+                <div class="mt-auto d-flex justify-content-between">
+
+                    <a href="#" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault();
                                     if(confirm('¿Seguro que quieres eliminar este cajón?')) {
                                         document.getElementById('delete-{{ box.id }}').submit();
                                     }">
-                            🗑️ Eliminar
-                        </a>
-                    </div>
+                        🗑️ Eliminar
+                    </a>
+                    <a href="{% url 'create_obj' %}?room={{ box.place.room.id }}&place={{ box.place.id }}&box={{ box.id }}"
+                        class="btn btn-sm btn-outline-primary mt-2">
+                        ➕ Agregar Objeto
+                    </a>
 
-                    <!-- Formulario oculto -->
-                    <form id="delete-{{ box.id }}" 
-                          action="{% url 'delete_box' box.id %}" 
-                          method="post" style="display:none;">
-                        {% csrf_token %}
-                    </form>
                 </div>
+
+                <!-- Formulario oculto -->
+                <form id="delete-{{ box.id }}" action="{% url 'delete_box' box.id %}" method="post"
+                    style="display:none;">
+                    {% csrf_token %}
+                </form>
             </div>
         </div>
+    </div>
     {% endfor %}
 </div>
 {% else %}

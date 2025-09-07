@@ -114,20 +114,3 @@ ObjectsFormSet = modelformset_factory(
     can_delete=True
 )
 
-def create_objects_bulk(request):
-    user = request.user
-    if not user.is_authenticated:
-        return redirect('login')
-
-    if request.method == 'POST':
-        formset = ObjectsFormSet(request.POST, queryset=Objects.objects.none(), form_kwargs={'user': user})
-        if formset.is_valid():
-            objs = formset.save(commit=False)
-            for obj in objs:
-                obj.user = user
-                obj.save()
-            return redirect('objects')
-    else:
-        formset = ObjectsFormSet(queryset=Objects.objects.none(), form_kwargs={'user': user})
-
-    return render(request, 'create_objects_bulk.html', {'formset': formset})

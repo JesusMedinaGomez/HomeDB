@@ -124,8 +124,9 @@
 </div>
 
 <!-- ---------------------------
-     MODAL NUEVO LUGAR
+     MODALES
 --------------------------- -->
+<!-- Nuevo Lugar -->
 <div class="modal fade" id="newPlaceModal" tabindex="-1" aria-labelledby="newPlaceLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -156,9 +157,7 @@
   </div>
 </div>
 
-<!-- ---------------------------
-     MODAL NUEVO TIPO
---------------------------- -->
+<!-- Nuevo Tipo -->
 <div class="modal fade" id="newTypeModal" tabindex="-1" aria-labelledby="newTypeLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -180,9 +179,7 @@
   </div>
 </div>
 
-<!-- ---------------------------
-     MODAL NUEVA HABITACIÓN
---------------------------- -->
+<!-- Nueva Habitación -->
 <div class="modal fade" id="newRoomModal" tabindex="-1" aria-labelledby="newRoomLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -204,9 +201,7 @@
   </div>
 </div>
 
-<!-- ---------------------------
-     MODAL NUEVO CAJÓN
---------------------------- -->
+<!-- Nuevo Cajón -->
 <div class="modal fade" id="newBoxModal" tabindex="-1" aria-labelledby="newBoxLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -254,7 +249,6 @@ document.getElementById('saveRoomBtn').addEventListener('click', function() {
     .then(res => res.json())
     .then(data => {
         if(data.success){
-            // Actualizar select principal de habitaciones
             const selectMain = document.getElementById('common-room');
             const optionMain = document.createElement('option');
             optionMain.value = data.id;
@@ -262,7 +256,6 @@ document.getElementById('saveRoomBtn').addEventListener('click', function() {
             optionMain.selected = true;
             selectMain.add(optionMain);
 
-            // Actualizar select de habitaciones en modal de nuevo lugar
             const selectPlaceModal = document.getElementById('place-room');
             const optionModal = document.createElement('option');
             optionModal.value = data.id;
@@ -298,7 +291,6 @@ document.getElementById('savePlaceBtn').addEventListener('click', function() {
     .then(res => res.json())
     .then(data => {
         if(data.success){
-            // Actualizar select principal de lugares
             const selectMain = document.getElementById('common-place');
             const optionMain = document.createElement('option');
             optionMain.value = data.id;
@@ -306,7 +298,6 @@ document.getElementById('savePlaceBtn').addEventListener('click', function() {
             optionMain.selected = true;
             selectMain.add(optionMain);
 
-            // Actualizar select de lugares en modal de nuevo cajón
             const selectBoxModal = document.getElementById('box-place');
             const optionModal = document.createElement('option');
             optionModal.value = data.id;
@@ -429,13 +420,12 @@ document.getElementById('add-object-btn').addEventListener('click', () => {
     objects.push(objData);
     renderList();
 
-    // Limpiar inputs individuales
     document.getElementById('obj-name').value = '';
     document.getElementById('obj-desc').value = '';
     document.getElementById('obj-type').value = '';
     document.getElementById('obj-important').checked = false;
-    document.getElementById('obj-who').value = '';
-    document.getElementById('obj-hasit').value = '';
+    document.getElementById('obj-who').value = 'Yo';
+    document.getElementById('obj-hasit').value = 'Yo';
     document.getElementById('obj-isinplace').checked = true;
 });
 
@@ -446,7 +436,6 @@ document.getElementById('objects-form').addEventListener('submit', (e) => {
         return;
     }
 
-    // Crear campo oculto con JSON
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = 'objects_data';

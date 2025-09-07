@@ -8,30 +8,35 @@
 {% if places %}
 <div class="row g-3">
     {% for place in places %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-primary fw-bold">{{ place.name }}</h5>
-                    <p class="card-text mb-2">{{ place.description }}</p>
-                    <small class="text-muted">{{ place.pseudonym }}</small>
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-primary fw-bold">{{ place.name }}</h5>
+                <p class="card-text mb-2">{{ place.description }}</p>
+                <small class="text-muted">{{ place.pseudonym }}</small>
 
-                    <div class="mt-auto d-flex justify-content-between">
-                        <a href="{% url 'edit_place' place.id %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
-                        <a href="#" class="btn btn-sm btn-outline-danger"
-                           onclick="event.preventDefault();
+                <div class="mt-auto d-flex justify-content-between">
+                    <a href="{% url 'edit_place' place.id %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+                    <a href="#" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault();
                                     if(confirm('¿Seguro que quieres eliminar este lugar?')) {
                                         document.getElementById('delete-{{ place.id }}').submit();
                                     }">
-                            🗑️ Eliminar
-                        </a>
-                    </div>
+                        🗑️ Eliminar
+                    </a>
+                    <a href="{% url 'create_obj' %}?room={{ place.room.id }}&place={{ place.id }}"
+                        class="btn btn-sm btn-outline-primary mt-2">
+                        ➕ Agregar Objeto
+                    </a>
 
-                    <form id="delete-{{ place.id }}" action="{% url 'delete_place' place.id %}" method="post" style="display:none;">
-                        {% csrf_token %}
-                    </form>
                 </div>
+
+                <form id="delete-{{ place.id }}" action="{% url 'delete_place' place.id %}" method="post"
+                    style="display:none;">
+                    {% csrf_token %}
+                </form>
             </div>
         </div>
+    </div>
     {% endfor %}
 </div>
 {% else %}
