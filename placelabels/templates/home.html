@@ -1,5 +1,69 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-<h1>Inicio</h1>
+<!-- Hero Section -->
+<div class="container py-5 text-center">
+    <h1 class="display-4 fw-bold text-primary mb-3">¡Bienvenido a tu Organizador de Objetos!</h1>
+    <p class="lead text-secondary mb-4">Gestiona tus habitaciones, lugares, cajones y objetos de manera fácil y rápida.
+    </p>
+    <img src="{% static 'images/organizer-hero.png' %}" alt="Organizador" class="img-fluid mb-4" style="max-width: 400px;">
+
+
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% if user.is_authenticated %}{% url 'rooms' %}{% else %}{% url 'login' %}{% endif %}"
+            class="btn btn-primary btn-lg shadow-sm">Habitaciones 🏠</a>
+
+        <a href="{% if user.is_authenticated %}{% url 'places' %}{% else %}{% url 'login' %}{% endif %}"
+            class="btn btn-outline-primary btn-lg shadow-sm">Lugares 📦</a>
+
+        <a href="{% if user.is_authenticated %}{% url 'boxes' %}{% else %}{% url 'login' %}{% endif %}"
+            class="btn btn-outline-primary btn-lg shadow-sm">Cajones 🗄️</a>
+
+        <a href="{% if user.is_authenticated %}{% url 'objects' %}{% else %}{% url 'login' %}{% endif %}"
+            class="btn btn-outline-primary btn-lg shadow-sm">Objetos 🎯</a>
+
+        <a href="{% if user.is_authenticated %}{% url 'objtypes' %}{% else %}{% url 'login' %}{% endif %}"
+            class="btn btn-outline-primary btn-lg shadow-sm">Tipos 📌</a>
+    </div>
+
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-4">
+                <div class="card-body">
+                    <h5 class="card-title text-primary fw-bold">Organización Rápida</h5>
+                    <p class="card-text text-secondary">Categoriza y encuentra tus objetos en segundos con filtros por
+                        habitación, lugar, cajón o tipo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-4">
+                <div class="card-body">
+                    <h5 class="card-title text-primary fw-bold">Gestión Inteligente</h5>
+                    <p class="card-text text-secondary">Marca objetos importantes, asigna dueños, y lleva control de lo
+                        que está en su lugar.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-4">
+                <div class="card-body">
+                    <h5 class="card-title text-primary fw-bold">Interfaz Moderna</h5>
+                    <p class="card-text text-secondary">Disfruta de una experiencia limpia, responsiva y fácil de usar
+                        desde cualquier dispositivo.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="container py-5 text-center">
+    <h3 class="mb-3">¡Empieza a organizar tus objetos ahora!</h3>
+    <a href="{% url 'objects' %}" class="btn btn-lg btn-success shadow-sm">Ver mis Objetos 🎯</a>
+</div>
 {% endblock %}

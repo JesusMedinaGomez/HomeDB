@@ -110,42 +110,44 @@ def create_objtype_ajax(request):
         return JsonResponse({'success': True, 'id': objtype.id, 'name': objtype.typename})
     return JsonResponse({'success': False, 'error': 'Método inválido'})
 
-# Create your views here.
-def home(request):
-    return render(request, 'home.html')
+
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.auth import login
 
+
+# Create your views here.
+def home(request):
+    return render(request, 'home.html')
+
+def index_redirect(request):
+    if request.user.is_authenticated:
+        return redirect('home') 
+    else:
+        return redirect('login') 
+
 def signup(request):
-    if request.method == 'GET':
-        return render(request, 'signup.html', {
-            'form': None  # No necesitamos el UserCreationForm
-        })
+    error = None
 
-    # POST
-    us_name = request.POST.get('username', '').strip()
-    pass1 = request.POST.get('password1', '')
-    pass2 = request.POST.get('password2', '')
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password1 = request.POST.get('password1', '').strip()
+        password2 = request.POST.get('password2', '').strip()
 
-    if pass1 != pass2:
-        return render(request, 'signup.html', {
-            'error': 'Las contraseñas no coinciden 😅',
-            'username': us_name
-        })
+        if not username or not password1 or not password2:
+            error = "Todos los campos son obligatorios."
+        elif password1 != password2:
+            error = "Las contraseñas no coinciden."
+        elif User.objects.filter(username=username).exists():
+            error = "El usuario ya existe."
+        else:
+            user = User.objects.create_user(username=username, password=password1)
+            auth_login(request, user)  # Inicia sesión automáticamente
+            return redirect('home')  # o la URL que tengas para el home
 
-    try:
-        user = User.objects.create_user(username=us_name, password=pass1)
-        user.save()
-        login(request, user)
-        return redirect('objects')
-    except IntegrityError:
-        return render(request, 'signup.html', {
-            'error': 'Ese usuario ya existe 😬',
-            'username': us_name
-        })
+    return render(request, 'signup.html', {'error': error})
 
 
 # CREATE
