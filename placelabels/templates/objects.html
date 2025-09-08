@@ -84,13 +84,12 @@
                 </h5>
 
                 <!-- Subtítulo: lugar y cajón -->
-                <h6 class="card-subtitle mb-2 text-muted text-truncate" title="{{ obj.placelabel.pseudonym }} {% if obj.boxlabel %}• {{ obj.boxlabel.pseudonym }}{% endif %}">
-                    {{ obj.placelabel.pseudonym }} {% if obj.boxlabel %}• {{ obj.boxlabel.pseudonym }}{% endif %}
-                </h6>
+
 
                 <p class="card-text text-truncate" title="{{ place.description }}">
-                    <strong>Lugar:</strong> {{ obj.placelabel.name }} ({{ obj.placelabel.pseudonym }})
+                    <strong>Lugar y cajón:</strong> {{ obj.placelabel.pseudonym }} {% if obj.boxlabel %}• {{ obj.boxlabel.pseudonym }}{% endif %}
                 </p>
+
                 <p class="card-text text-truncate" title="{{ place.description }}">
                     <strong>Habitación:</strong> {{ obj.placelabel.room.name }}
                 </p>
@@ -98,17 +97,6 @@
                     <strong>Tipo:</strong> {{ obj.label }}
                 </p>
 
-                <!-- Habitación -->
-                <p class="mb-2 text-truncate">
-                    <strong>Habitación:</strong>
-                    {% if obj.placelabel %}
-                        {{ obj.placelabel.room.name }}
-                    {% elif obj.boxlabel %}
-                        {{ obj.boxlabel.place.room.name }}
-                    {% else %}
-                        No asignada
-                    {% endif %}
-                </p>
 
                 <!-- Botones -->
                 <div class="mt-auto d-flex gap-2">
