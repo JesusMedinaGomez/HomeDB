@@ -12,6 +12,16 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
 
+def get_places_by_room(request, room_id):
+    places = PlaceLabel.objects.filter(room_id=room_id, user=request.user)
+    data = [{"id": p.id, "name": p.name} for p in places]
+    return JsonResponse(data, safe=False)
+
+def get_boxes_by_place(request, place_id):
+    boxes = BoxLabel.objects.filter(place_id=place_id, user=request.user)
+    data = [{"id": b.id, "name": b.name} for b in boxes]
+    return JsonResponse(data, safe=False)
+
 # -------------------
 # Crear habitación AJAX
 # -------------------
@@ -209,19 +219,32 @@ def create_obj(request):
             type_id = obj_data.get('type')
 
             if placelabel_id:
-                try: obj.placelabel = PlaceLabel.objects.get(id=placelabel_id, user=request.user)
-                except: pass
+                try:
+                    obj.placelabel = PlaceLabel.objects.get(id=placelabel_id, user=request.user)
+                except:
+                    pass
             if boxlabel_id:
-                try: obj.boxlabel = BoxLabel.objects.get(id=boxlabel_id, user=request.user)
-                except: pass
+                try:
+                    obj.boxlabel = BoxLabel.objects.get(id=boxlabel_id, user=request.user)
+                except:
+                    pass
             if type_id:
-                try: obj.label = ObjType.objects.get(id=type_id, user=request.user)
-                except: pass
+                try:
+                    obj.label = ObjType.objects.get(id=type_id, user=request.user)
+                except:
+                    pass
 
             obj.save()
 
-        # Redirigir a la lista de objetos o la misma página
-        return redirect('objects')  # <-- tu URL de lista de objetos
+        # Redirigir a la lista de objetos
+        return redirect('objects')
+
+    # ----->>> aquí capturas los GET params
+    preselected = {
+        "room": request.GET.get("room"),
+        "place": request.GET.get("place"),
+        "box": request.GET.get("box"),
+    }
 
     # Si es GET, renderizamos el formulario vacío
     return render(request, 'create_obj.html', {
@@ -229,6 +252,7 @@ def create_obj(request):
         'user_places': user_places,
         'user_boxes': user_boxes,
         'user_types': user_types,
+        'preselected': preselected,   # <-- agregado
     })
 
 def create_place(request):
@@ -366,9 +390,10 @@ def rooms(request):
 def edit_object(request, pk):
     obj = get_object_or_404(Objects, pk=pk, user=request.user)
 
-    # Traemos lugares y habitaciones del usuario para los modales
+    # Traemos lugares, habitaciones y tipos del usuario para los modales
     user_places = PlaceLabel.objects.filter(user=request.user)
     user_rooms = Room.objects.filter(user=request.user)
+    user_types = ObjType.objects.filter(user=request.user)  # <-- agregar esto
 
     if request.method == 'GET':
         form = CreateObjForm(instance=obj, user=request.user)
@@ -376,7 +401,8 @@ def edit_object(request, pk):
             'form': form,
             'obj': obj,
             'user_places': user_places,
-            'user_rooms': user_rooms
+            'user_rooms': user_rooms,
+            'user_types': user_types,  # <-- agregar al contexto
         })
     else:  # POST
         form = CreateObjForm(request.POST, instance=obj, user=request.user)
@@ -391,9 +417,9 @@ def edit_object(request, pk):
                 'obj': obj,
                 'user_places': user_places,
                 'user_rooms': user_rooms,
+                'user_types': user_types,  # <-- agregar al contexto
                 'error': 'Por favor completa los datos correctamente'
             })
-
 
 def edit_room(request, pk):
     room = get_object_or_404(Room, pk=pk) 

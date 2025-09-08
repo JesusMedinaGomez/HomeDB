@@ -47,6 +47,8 @@ urlpatterns = [
     path("habitaciones/<int:pk>/eliminar/", views.delete_room, name="delete_room"),
     path('habitaciones/crear/ajax/', views.create_room_ajax, name='create_room_ajax'),
     path('cajones/crear/ajax/', views.create_box_ajax, name='create_box_ajax'),
+    path('ajax/places/<int:room_id>/', views.get_places_by_room, name='get_places_by_room'),
+    path('ajax/boxes/<int:place_id>/', views.get_boxes_by_place, name='get_boxes_by_place'),
     path('logout/', views.mylogout, name='logout'),
     path('login/', views.mylogin, name='login')
 ]

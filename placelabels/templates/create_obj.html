@@ -3,124 +3,121 @@
 
 {% block content %}
 <div class="container my-4">
-    <h1 class="mb-4">Añadir Objetos</h1>
+  <h1 class="mb-4">Añadir Objetos</h1>
 
-    {% if error %}
-    <div class="alert alert-danger" role="alert">{{ error }}</div>
-    {% endif %}
+  {% if error %}
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  {% endif %}
 
-    <form method="POST" id="objects-form">
-        {% csrf_token %}
+  <form method="POST" id="objects-form">
+    {% csrf_token %}
 
-        <!-- -------------------------
+    <!-- -------------------------
              Selección de valores comunes
         ------------------------- -->
-        <div class="border rounded p-3 mb-3">
-            <h5>Habitación, Lugar y Cajón comunes</h5>
+    <div class="border rounded p-3 mb-3">
+      <h5>Habitación, Lugar y Cajón comunes</h5>
 
-            <div class="mb-3 row g-2 align-items-center">
-                <div class="col-md-10">
-                    <label for="common-room" class="form-label">Habitación</label>
-                    <select name="common_room" id="common-room" class="form-select">
-                        <option value="">--Selecciona habitación--</option>
-                        {% for room in user_rooms %}
-                        <option value="{{ room.id }}">{{ room.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#newRoomModal">+</button>
-                </div>
-            </div>
-
-            <div class="mb-3 row g-2 align-items-center">
-                <div class="col-md-10">
-                    <label for="common-place" class="form-label">Lugar</label>
-                    <select name="common_place" id="common-place" class="form-select">
-                        <option value="">--Selecciona lugar--</option>
-                        {% for place in user_places %}
-                        <option value="{{ place.id }}">{{ place.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#newPlaceModal">+</button>
-                </div>
-            </div>
-
-            <div class="mb-3 row g-2 align-items-center">
-                <div class="col-md-10">
-                    <label for="common-box" class="form-label">Cajón (opcional)</label>
-                    <select name="common_box" id="common-box" class="form-select">
-                        <option value="">--Selecciona cajón--</option>
-                        {% for box in user_boxes %}
-                        <option value="{{ box.id }}">{{ box.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#newBoxModal">+</button>
-                </div>
-            </div>
+      <div class="mb-3 row g-2 align-items-center">
+        <div class="col-md-10">
+          <label for="common-room" class="form-label">Habitación</label>
+          <select name="common_room" id="common-room" class="form-select">
+            <option value="">--Selecciona habitación--</option>
+            {% for room in user_rooms %}
+            <option value="{{ room.id }}">{{ room.name }}</option>
+            {% endfor %}
+          </select>
         </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+            data-bs-target="#newRoomModal">+</button>
+        </div>
+      </div>
 
-        <!-- -------------------------
+      <div class="mb-3 row g-2 align-items-center">
+        <div class="col-md-10">
+          <label for="common-place" class="form-label">Lugar</label>
+          <select name="common_place" id="common-place" class="form-select" disabled>
+            <option value="">--Selecciona lugar--</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+            data-bs-target="#newPlaceModal">+</button>
+        </div>
+      </div>
+
+      <div class="mb-3 row g-2 align-items-center">
+        <div class="col-md-10">
+          <label for="common-box" class="form-label">Cajón (opcional)</label>
+          <select name="common_box" id="common-box" class="form-select" disabled>
+            <option value="">--Selecciona cajón--</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+            data-bs-target="#newBoxModal">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- -------------------------
              Campos individuales para agregar un objeto
         ------------------------- -->
-        <div class="border rounded p-3 mb-3">
-            <h5>Agregar un objeto</h5>
-            <div class="row g-2">
-                <div class="col-md-3">
-                    <input type="text" id="obj-name" class="form-control" placeholder="Nombre del objeto">
-                </div>
-                <div class="col-md-3">
-                    <textarea id="obj-desc" class="form-control" placeholder="Descripción" rows="1"></textarea>
-                </div>
-                <div class="col-md-3">
-                    <select id="obj-type" class="form-select">
-                        <option value="">--Tipo--</option>
-                        {% for t in user_types %}
-                        <option value="{{ t.id }}">{{ t.typename }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-center">
-                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#newTypeModal">+</button>
-                </div>
-            </div>
-
-            <div class="form-check mt-2">
-                <input type="checkbox" id="obj-important" class="form-check-input">
-                <label class="form-check-label" for="obj-important">¿Es importante?</label>
-            </div>
-
-            <div class="row g-2 mt-2">
-                <div class="col-md-6">
-                    <input type="text" id="obj-who" class="form-control" placeholder="Propietario" value="Yo">
-                </div>
-                <div class="col-md-6">
-                    <input type="text" id="obj-hasit" class="form-control" placeholder="¿Se lo prestaste a...?" value="Yo">
-                </div>
-            </div>
-
-            <div class="form-check mt-2">
-                <input type="checkbox" id="obj-isinplace" class="form-check-input" checked>
-                <label class="form-check-label" for="obj-isinplace">¿Está en su lugar?</label>
-            </div>
-
-            <button type="button" id="add-object-btn" class="btn btn-success mt-2">Agregar objeto</button>
+    <div class="border rounded p-3 mb-3">
+      <h5>Agregar un objeto</h5>
+      <div class="row g-2">
+        <div class="col-md-3">
+          <input type="text" id="obj-name" class="form-control" placeholder="Nombre del objeto">
         </div>
+        <div class="col-md-3">
+          <textarea id="obj-desc" class="form-control" placeholder="Descripción" rows="1"></textarea>
+        </div>
+        <div class="col-md-3">
+          <select id="obj-type" class="form-select">
+            <option value="">--Tipo--</option>
+            {% for t in user_types %}
+            <option value="{{ t.id }}">{{ t.typename }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+          <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#newTypeModal">+</button>
+        </div>
+      </div>
 
-        <!-- -------------------------
+      <div class="form-check mt-2">
+        <input type="checkbox" id="obj-important" class="form-check-input">
+        <label class="form-check-label" for="obj-important">¿Es importante?</label>
+      </div>
+
+      <div class="row g-2 mt-2">
+        <div class="col-md-6">
+          <input type="text" id="obj-who" class="form-control" placeholder="Propietario" value="Yo">
+        </div>
+        <div class="col-md-6">
+          <input type="text" id="obj-hasit" class="form-control" placeholder="¿Se lo prestaste a...?" value="Yo">
+        </div>
+      </div>
+
+      <div class="form-check mt-2">
+        <input type="checkbox" id="obj-isinplace" class="form-check-input" checked>
+        <label class="form-check-label" for="obj-isinplace">¿Está en su lugar?</label>
+      </div>
+
+      <button type="button" id="add-object-btn" class="btn btn-success mt-2">Agregar objeto</button>
+    </div>
+
+    <!-- -------------------------
              Lista visual de objetos agregados
         ------------------------- -->
-        <div class="border rounded p-3 mb-3">
-            <h5>Objetos a guardar</h5>
-            <ul id="object-list" class="list-group"></ul>
-        </div>
+    <div class="border rounded p-3 mb-3">
+      <h5>Objetos a guardar</h5>
+      <ul id="object-list" class="list-group"></ul>
+    </div>
 
-        <button type="submit" class="btn btn-primary">Guardar todos los objetos</button>
-    </form>
+    <button type="submit" class="btn btn-primary">Guardar todos los objetos</button>
+  </form>
 </div>
 
 <!-- ---------------------------
@@ -142,7 +139,7 @@
           <select id="place-room" class="form-select mb-2" required>
             <option value="">Selecciona una habitación</option>
             {% for room in user_rooms %}
-              <option value="{{ room.id }}">{{ room.name }}</option>
+            <option value="{{ room.id }}">{{ room.name }}</option>
             {% endfor %}
           </select>
 
@@ -214,7 +211,7 @@
           <select id="box-place" class="form-select mb-2">
             <option value="">Selecciona un lugar</option>
             {% for place in user_places %}
-              <option value="{{ place.id }}">{{ place.name }}</option>
+            <option value="{{ place.id }}">{{ place.name }}</option>
             {% endfor %}
           </select>
           <input type="text" id="box-name" class="form-control" placeholder="Nombre del cajón (opcional)">
@@ -230,191 +227,191 @@
 </div>
 
 <script>
-// ------------------- AJAX NUEVA HABITACIÓN -------------------
-document.getElementById('saveRoomBtn').addEventListener('click', function() {
+  // ------------------- AJAX NUEVA HABITACIÓN -------------------
+  document.getElementById('saveRoomBtn').addEventListener('click', function () {
     const name = document.getElementById('room-name').value.trim();
     const errorDiv = document.getElementById('room-error');
     errorDiv.style.display = 'none';
-    if(!name) { 
-        errorDiv.textContent = "El nombre es obligatorio"; 
-        errorDiv.style.display = 'block'; 
-        return; 
+    if (!name) {
+      errorDiv.textContent = "El nombre es obligatorio";
+      errorDiv.style.display = 'block';
+      return;
     }
 
     fetch("{% url 'create_room_ajax' %}", {
-        method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
-        body: JSON.stringify({name: name})
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name })
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success){
-            const selectMain = document.getElementById('common-room');
-            const optionMain = document.createElement('option');
-            optionMain.value = data.id;
-            optionMain.text = data.name;
-            optionMain.selected = true;
-            selectMain.add(optionMain);
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const selectMain = document.getElementById('common-room');
+          const optionMain = document.createElement('option');
+          optionMain.value = data.id;
+          optionMain.text = data.name;
+          optionMain.selected = true;
+          selectMain.add(optionMain);
 
-            const selectPlaceModal = document.getElementById('place-room');
-            const optionModal = document.createElement('option');
-            optionModal.value = data.id;
-            optionModal.text = data.name;
-            selectPlaceModal.add(optionModal);
+          const selectPlaceModal = document.getElementById('place-room');
+          const optionModal = document.createElement('option');
+          optionModal.value = data.id;
+          optionModal.text = data.name;
+          selectPlaceModal.add(optionModal);
 
-            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('newRoomModal'));
-            modal.hide();
-            document.getElementById('room-name').value = '';
+          const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('newRoomModal'));
+          modal.hide();
+          document.getElementById('room-name').value = '';
         } else {
-            errorDiv.textContent = data.error;
-            errorDiv.style.display = 'block';
+          errorDiv.textContent = data.error;
+          errorDiv.style.display = 'block';
         }
-    });
-});
+      });
+  });
 
-// ------------------- AJAX NUEVO LUGAR -------------------
-document.getElementById('savePlaceBtn').addEventListener('click', function() {
+  // ------------------- AJAX NUEVO LUGAR -------------------
+  document.getElementById('savePlaceBtn').addEventListener('click', function () {
     const name = document.getElementById('place-name').value.trim();
     const desc = document.getElementById('place-desc').value.trim();
     const roomId = document.getElementById('place-room').value;
     const errorDiv = document.getElementById('place-error');
     errorDiv.style.display = 'none';
 
-    if(!name) { errorDiv.textContent = "El nombre es obligatorio"; errorDiv.style.display = 'block'; return; }
-    if(!roomId) { errorDiv.textContent = "Debes seleccionar una habitación"; errorDiv.style.display = 'block'; return; }
+    if (!name) { errorDiv.textContent = "El nombre es obligatorio"; errorDiv.style.display = 'block'; return; }
+    if (!roomId) { errorDiv.textContent = "Debes seleccionar una habitación"; errorDiv.style.display = 'block'; return; }
 
     fetch("{% url 'create_place_ajax' %}", {
-        method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
-        body: JSON.stringify({name: name, description: desc, room_id: roomId})
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, description: desc, room_id: roomId })
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success){
-            const selectMain = document.getElementById('common-place');
-            const optionMain = document.createElement('option');
-            optionMain.value = data.id;
-            optionMain.text = data.name;
-            optionMain.selected = true;
-            selectMain.add(optionMain);
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const selectMain = document.getElementById('common-place');
+          const optionMain = document.createElement('option');
+          optionMain.value = data.id;
+          optionMain.text = data.name;
+          optionMain.selected = true;
+          selectMain.add(optionMain);
 
-            const selectBoxModal = document.getElementById('box-place');
-            const optionModal = document.createElement('option');
-            optionModal.value = data.id;
-            optionModal.text = data.name;
-            selectBoxModal.add(optionModal);
+          const selectBoxModal = document.getElementById('box-place');
+          const optionModal = document.createElement('option');
+          optionModal.value = data.id;
+          optionModal.text = data.name;
+          selectBoxModal.add(optionModal);
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('newPlaceModal'));
-            modal.hide();
-            document.getElementById('place-name').value = '';
-            document.getElementById('place-desc').value = '';
-            document.getElementById('place-room').value = '';
+          const modal = bootstrap.Modal.getInstance(document.getElementById('newPlaceModal'));
+          modal.hide();
+          document.getElementById('place-name').value = '';
+          document.getElementById('place-desc').value = '';
+          document.getElementById('place-room').value = '';
         } else {
-            errorDiv.textContent = data.error;
-            errorDiv.style.display = 'block';
+          errorDiv.textContent = data.error;
+          errorDiv.style.display = 'block';
         }
-    });
-});
+      });
+  });
 
-// ------------------- AJAX NUEVO TIPO -------------------
-document.getElementById('saveTypeBtn').addEventListener('click', function() {
+  // ------------------- AJAX NUEVO TIPO -------------------
+  document.getElementById('saveTypeBtn').addEventListener('click', function () {
     const name = document.getElementById('type-name').value.trim();
     const errorDiv = document.getElementById('type-error');
     errorDiv.style.display = 'none';
-    if(!name) { errorDiv.textContent = "El nombre es obligatorio"; errorDiv.style.display = 'block'; return; }
+    if (!name) { errorDiv.textContent = "El nombre es obligatorio"; errorDiv.style.display = 'block'; return; }
 
     fetch("{% url 'create_objtype_ajax' %}", {
-        method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
-        body: JSON.stringify({typename: name})
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ typename: name })
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success){
-            const select = document.getElementById('obj-type');
-            const option = document.createElement('option');
-            option.value = data.id;
-            option.text = data.name;
-            option.selected = true;
-            select.add(option);
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('obj-type');
+          const option = document.createElement('option');
+          option.value = data.id;
+          option.text = data.name;
+          option.selected = true;
+          select.add(option);
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('newTypeModal'));
-            modal.hide();
-            document.getElementById('type-name').value = '';
+          const modal = bootstrap.Modal.getInstance(document.getElementById('newTypeModal'));
+          modal.hide();
+          document.getElementById('type-name').value = '';
         } else {
-            errorDiv.textContent = data.error;
-            errorDiv.style.display = 'block';
+          errorDiv.textContent = data.error;
+          errorDiv.style.display = 'block';
         }
-    });
-});
+      });
+  });
 
-// ------------------- AJAX NUEVO CAJÓN -------------------
-document.getElementById('saveBoxBtn').addEventListener('click', function() {
+  // ------------------- AJAX NUEVO CAJÓN -------------------
+  document.getElementById('saveBoxBtn').addEventListener('click', function () {
     const placeId = document.getElementById('box-place').value;
     const name = document.getElementById('box-name').value.trim();
     const errorDiv = document.getElementById('box-error');
     errorDiv.style.display = 'none';
-    if(!placeId) { errorDiv.textContent = "Debes seleccionar un lugar"; errorDiv.style.display = 'block'; return; }
+    if (!placeId) { errorDiv.textContent = "Debes seleccionar un lugar"; errorDiv.style.display = 'block'; return; }
 
     fetch("{% url 'create_box_ajax' %}", {
-        method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
-        body: JSON.stringify({place: placeId, name: name})
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ place: placeId, name: name })
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success){
-            const select = document.getElementById('common-box');
-            const option = document.createElement('option');
-            option.value = data.id;
-            option.text = data.name;
-            option.selected = true;
-            select.add(option);
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('common-box');
+          const option = document.createElement('option');
+          option.value = data.id;
+          option.text = data.name;
+          option.selected = true;
+          select.add(option);
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('newBoxModal'));
-            modal.hide();
-            document.getElementById('box-name').value = '';
-            document.getElementById('box-place').value = '';
+          const modal = bootstrap.Modal.getInstance(document.getElementById('newBoxModal'));
+          modal.hide();
+          document.getElementById('box-name').value = '';
+          document.getElementById('box-place').value = '';
         } else {
-            errorDiv.textContent = data.error;
-            errorDiv.style.display = 'block';
+          errorDiv.textContent = data.error;
+          errorDiv.style.display = 'block';
         }
-    });
-});
+      });
+  });
 
-// ------------------- MULTI OBJETOS CON TODOS SUS CAMPOS -------------------
-let objects = [];
+  // ------------------- MULTI OBJETOS CON TODOS SUS CAMPOS -------------------
+  let objects = [];
 
-function renderList() {
+  function renderList() {
     const ul = document.getElementById('object-list');
     ul.innerHTML = '';
     objects.forEach((obj, index) => {
-        const li = document.createElement('li');
-        li.className = 'list-group-item d-flex justify-content-between align-items-center';
-        li.textContent = obj.name + (obj.description ? ' - ' + obj.description : '');
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-sm btn-danger';
-        btn.textContent = '✖';
-        btn.onclick = () => { objects.splice(index,1); renderList(); };
-        li.appendChild(btn);
-        ul.appendChild(li);
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between align-items-center';
+      li.textContent = obj.name + (obj.description ? ' - ' + obj.description : '');
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-danger';
+      btn.textContent = '✖';
+      btn.onclick = () => { objects.splice(index, 1); renderList(); };
+      li.appendChild(btn);
+      ul.appendChild(li);
     });
-}
+  }
 
-document.getElementById('add-object-btn').addEventListener('click', () => {
+  document.getElementById('add-object-btn').addEventListener('click', () => {
     const name = document.getElementById('obj-name').value.trim();
-    if(!name) return alert("El nombre es obligatorio");
+    if (!name) return alert("El nombre es obligatorio");
 
     const objData = {
-        name: name,
-        description: document.getElementById('obj-desc').value.trim(),
-        type: document.getElementById('obj-type').value,
-        important: document.getElementById('obj-important').checked,
-        whoIsIt: document.getElementById('obj-who').value.trim(),
-        hasIt: document.getElementById('obj-hasit').value.trim(),
-        isInPlace: document.getElementById('obj-isinplace').checked,
-        placelabel: document.getElementById('common-place').value,
-        boxlabel: document.getElementById('common-box').value
+      name: name,
+      description: document.getElementById('obj-desc').value.trim(),
+      type: document.getElementById('obj-type').value,
+      important: document.getElementById('obj-important').checked,
+      whoIsIt: document.getElementById('obj-who').value.trim(),
+      hasIt: document.getElementById('obj-hasit').value.trim(),
+      isInPlace: document.getElementById('obj-isinplace').checked,
+      placelabel: document.getElementById('common-place').value,
+      boxlabel: document.getElementById('common-box').value
     };
 
     objects.push(objData);
@@ -427,13 +424,13 @@ document.getElementById('add-object-btn').addEventListener('click', () => {
     document.getElementById('obj-who').value = 'Yo';
     document.getElementById('obj-hasit').value = 'Yo';
     document.getElementById('obj-isinplace').checked = true;
-});
+  });
 
-document.getElementById('objects-form').addEventListener('submit', (e) => {
-    if(objects.length === 0){
-        e.preventDefault();
-        alert("Agrega al menos un objeto antes de guardar");
-        return;
+  document.getElementById('objects-form').addEventListener('submit', (e) => {
+    if (objects.length === 0) {
+      e.preventDefault();
+      alert("Agrega al menos un objeto antes de guardar");
+      return;
     }
 
     const input = document.createElement('input');
@@ -441,6 +438,84 @@ document.getElementById('objects-form').addEventListener('submit', (e) => {
     input.name = 'objects_data';
     input.value = JSON.stringify(objects);
     e.target.appendChild(input);
-});
+  });
+
+  // ------------------- SELECTS ENCADENADOS CON PRESELECCIÓN -------------------
+  const roomSelect = document.getElementById("common-room");
+  const placeSelect = document.getElementById("common-place");
+  const boxSelect = document.getElementById("common-box");
+
+  // valores enviados desde Django
+  const preselectedRoom = "{{ preselected.room|default:'' }}";
+  const preselectedPlace = "{{ preselected.place|default:'' }}";
+  const preselectedBox = "{{ preselected.box|default:'' }}";
+
+  // Deshabilitar de inicio
+  placeSelect.disabled = true;
+  boxSelect.disabled = true;
+
+  // Preseleccionar habitación al cargar
+  document.addEventListener("DOMContentLoaded", function () {
+    if (preselectedRoom) {
+      roomSelect.value = preselectedRoom;
+      roomSelect.dispatchEvent(new Event("change"));
+    }
+  });
+
+  roomSelect.addEventListener("change", function () {
+    const roomId = this.value;
+    placeSelect.innerHTML = '<option value="">--Selecciona lugar--</option>';
+    boxSelect.innerHTML = '<option value="">--Selecciona cajón--</option>';
+    boxSelect.disabled = true;
+
+    if (roomId) {
+      fetch(`/ajax/places/${roomId}/`)
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(place => {
+            let opt = document.createElement("option");
+            opt.value = place.id;
+            opt.textContent = place.name;
+            placeSelect.appendChild(opt);
+          });
+          placeSelect.disabled = false;
+
+          // si hay lugar preseleccionado
+          if (preselectedPlace) {
+            placeSelect.value = preselectedPlace;
+            placeSelect.dispatchEvent(new Event("change"));
+          }
+        });
+    } else {
+      placeSelect.disabled = true;
+    }
+  });
+
+  placeSelect.addEventListener("change", function () {
+    const placeId = this.value;
+    boxSelect.innerHTML = '<option value="">--Selecciona cajón--</option>';
+
+    if (placeId) {
+      fetch(`/ajax/boxes/${placeId}/`)
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(box => {
+            let opt = document.createElement("option");
+            opt.value = box.id;
+            opt.textContent = box.name;
+            boxSelect.appendChild(opt);
+          });
+          boxSelect.disabled = false;
+
+          // si hay cajón preseleccionado
+          if (preselectedBox) {
+            boxSelect.value = preselectedBox;
+          }
+        });
+    } else {
+      boxSelect.disabled = true;
+    }
+  });
 </script>
+
 {% endblock %}
