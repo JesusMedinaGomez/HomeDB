@@ -2,8 +2,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>Tipos de Objeto</h1>
-    <a href="{% url 'create_objtype' %}" class="btn btn-warning">+ Añadir Tipo</a>
+    <a href="{% url 'create_objtype' %}" class="btn btn-success">+ Añadir Tipo</a>
 </div>
+
+{% include 'search_bar.html' with query=query placeholder="Buscar por nombre..." %}
+
 
 {% if objtypes %}
 <div class="row g-3">

@@ -2,8 +2,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>Lugares</h1>
-    <a href="{% url 'create_place' %}" class="btn btn-primary">+ Añadir Lugar</a>
+    <a href="{% url 'create_place' %}" class="btn btn-success">+ Añadir Lugar</a>
 </div>
+
+{% include 'search_bar.html' with query=query placeholder="Buscar por nombre..." %}
+
 
 {% if places %}
 <div class="row g-3">

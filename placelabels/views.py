@@ -364,24 +364,50 @@ def objects(request):
     })
 
 def places(request):
+    query = request.GET.get('q', '')  # término de búsqueda
     places = PlaceLabel.objects.filter(user=request.user)
-    return render(request, 'places.html', {'places': places})
+    if query:
+        places = places.filter(name__icontains=query)
+    return render(request, 'places.html', {
+        'places': places,
+        'query': query
+    })
 
 def objtypes(request):
+    query = request.GET.get('q', '')
     objtypes = ObjType.objects.filter(user=request.user)
-    return render(request, 'objtypes.html', {'objtypes': objtypes})
+    if query:
+        objtypes = objtypes.filter(typename__icontains=query)
+    return render(request, 'objtypes.html', {
+        'objtypes': objtypes,
+        'query': query
+    })
 
 def object_detail(request, pk):
     obj = get_object_or_404(Objects, pk=pk, user=request.user)
     return render(request, 'object_detail.html', {'obj': obj})
 
 def boxes(request):
+    query = request.GET.get('q', '')
     boxes = BoxLabel.objects.filter(user=request.user)
-    return render(request, 'boxes.html', {'boxes': boxes})
+    if query:
+        boxes = boxes.filter(name__icontains=query)
+    return render(request, 'boxes.html', {
+        'boxes': boxes,
+        'query': query
+    })
 
 def rooms(request):
+    query = request.GET.get('q', '')  # capturamos el término de búsqueda
     user_rooms = Room.objects.filter(user=request.user)
-    return render(request, 'rooms.html', {'rooms': user_rooms})
+    
+    if query:
+        user_rooms = user_rooms.filter(name__icontains=query)  # filtramos por nombre
+    
+    return render(request, 'rooms.html', {
+        'rooms': user_rooms,
+        'query': query
+    })
 
 
 

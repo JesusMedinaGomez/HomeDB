@@ -66,12 +66,8 @@
 </div>
 
 <!-- Formulario de búsqueda -->
-<form method="get" class="mb-3">
-    <div class="input-group">
-        <input type="text" name="q" class="form-control" placeholder="Buscar por objeto, lugar o cajón..." value="{{ query }}">
-        <button class="btn btn-primary" type="submit">Buscar</button>
-    </div>
-</form>
+{% include 'search_bar.html' with query=query placeholder="Buscar por nombre..." %}
+
 
 {% if objs %}
 <div class="row g-3">
